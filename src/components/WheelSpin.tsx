@@ -13,7 +13,6 @@ import {
 } from '../components/ui/dialog';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import { Button } from './ui/button';
-// Removed duplicate import statement for Label
 import { Input } from '../components/ui/input';
 import axios from 'axios';
 
@@ -24,24 +23,52 @@ const WheelOfFortune = () => {
   const [spinsLeft, setSpinsLeft] = useState(3);
   const [prizeHistory, setPrizeHistory] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
 
   const prizes = [
-    'Anatomik yosharish',
-    'Radiolift',
+    'ANATOMIK YOSHARISH',
+    'RADIOLIFT',
     'KEYINGI SAFAR :)',
-    'Termolift',
-    'Chistka+peeling',
+    'TERMOLEFT',
+    'CHESKA+PEELING',
     'KEYINGI SAFAR :)',
-    'Soch mezoterapiyasi',
-    'Kuz biorevitalizatsiyasi',
+    'SOCH MEZOTERAPIYA',
+    "KO'Z BIOREVITALIZATSIYASI",
     'KEYINGI SAFAR :)',
-    'Yuz mezoterapiyasi',
-    'BOTEX 50% skidka',
+    'Yuz MEZOTERAPIYA',
+    'BOTEX 50% SKIDKA',
     'KEYINGI SAFAR :)',
   ];
 
-  const url =
-    'https://script.google.com/macros/s/AKfycbzncngPIfnh_DSs27sjpdm1DTKodnpcoF3nDSW-L3nQQejyqriHVpYTSsA2wNDnvcp2/exec';
+  const TELEGRAM_BOT_TOKEN = '7619434666:AAGfUH57FYz0WXMKMFJii5jUNMH3pRG5ERs'; // Bot tokenini shu yerga kiriting
+  const TELEGRAM_CHAT_ID = '961047307'; // Chat ID ni shu yerga kiriting
+
+  const sendToTelegram = async (
+    name: string,
+    surname: string,
+    phone: string,
+    prizeHistory: any[]
+  ) => {
+    const message = `
+      Yutgan foydalanuvchi:
+      Ism: ${name}
+      Familiya: ${surname}
+      Telefon: ${phone}
+      Yutuqlar: ${prizeHistory.join(', ')}
+    `;
+
+    try {
+      await axios.post(
+        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+        {
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+        }
+      );
+    } catch (error) {
+      console.error('Telegramga yuborishda xatolik:', error);
+    }
+  };
 
   const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
@@ -68,14 +95,11 @@ const WheelOfFortune = () => {
     }
 
     try {
-      const response = await axios.post(url, {
-        name,
-        surname,
-        phone,
-        prizes: prizeHistory,
-      });
+      // Telegramga ma'lumot yuborish
+      await sendToTelegram(name, surname, phone, prizeHistory);
 
-      alert(response.data.message);
+      alert('Ma’lumot yuborildi!');
+      setIsModalOpen2(false);
     } catch (error) {
       console.error('Failed to submit data:', error);
       alert('Ma’lumotni yuborishda xatolik yuz berdi.');
@@ -164,7 +188,7 @@ const WheelOfFortune = () => {
       }}
     >
       <div className='flex flex-col items-center gap-8 p-4'>
-        <div className='relative w-[400px]'>
+        <div className='relative max-w-[400px]'>
           <svg
             viewBox='0 0 400 400'
             className='w-full h-full'
@@ -300,7 +324,7 @@ const WheelOfFortune = () => {
           <Dialog open={isModalOpen} onOpenChange={closeModal}>
             <DialogContent>
               <DialogHeader>
-                <div className='flex justify-center items-center py-5'>
+                <div className='flex justify-center items-center py-4'>
                   <img src={gift} alt='gift' />
                 </div>
                 <DialogTitle className='flex flex-col justify-center items-center text-center'>
@@ -309,17 +333,20 @@ const WheelOfFortune = () => {
                   ) : (
                     <span className='text-3xl font-bold'>Tabriklaymiz!!!</span>
                   )}
+                </DialogTitle>
+
+                <DialogDescription className='text-center py-10 text-gray-700 text-2xl'>
+                  Sizga <strong>{result}</strong> chiqdi!
                   <div className='text-2xl text-center'>
                     {spinsLeft === 0 ? (
                       <span>Barcha urinishlaringiz tugadi!</span>
                     ) : (
-                      <span>Sizda yana {spinsLeft} ta orinish qoldi!</span>
+                      <span>
+                        Sizda yana <strong>{spinsLeft} ta</strong> urinish
+                        qoldi!
+                      </span>
                     )}
                   </div>
-                </DialogTitle>
-
-                <DialogDescription className='text-center text-gray-700 text-2xl'>
-                  Siz <strong>{result}</strong>ni yutdingiz!
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>
@@ -336,60 +363,71 @@ const WheelOfFortune = () => {
                 sovg'alarni yuting!
               </h3>
             ) : (
-              prizeHistory.map((prize, index) => (
-                <li className='font-semibold uppercase' key={index}>
-                  {prize}
-                </li>
-              ))
+              prizeHistory.map(
+                (prize, index) =>
+                  prize !== 'KEYINGI SAFAR :)' && (
+                    <li className='font-semibold uppercase' key={index}>
+                      {prize}
+                    </li>
+                  )
+              )
             )}
 
-            <Dialog>
+            <Dialog open={isModalOpen2} onOpenChange={setIsModalOpen2}>
               <DialogTrigger asChild>
-                <Button variant='outline'>Yutuqni oling!</Button>
+                {spinsLeft === 0 ? (
+                  <Button
+                    className='bg-green-400 mt-4 text-white h-[45px] hover:bg-green-500 w-full uppercase'
+                    variant='outline'
+                  >
+                    Yutuqni oling!
+                  </Button>
+                ) : (
+                  false
+                )}
               </DialogTrigger>
+
               <DialogContent className='sm:max-w-[425px] text-center'>
                 <DialogHeader className='text-center'>
                   <DialogTitle className='text-center text-2xl'>
                     Yutugingizni Oling!
                   </DialogTitle>
                   <DialogDescription className='text-center text-xl text-gray-800'>
-                    Malumotlarni toldiring. Bu biz sizga bog'lanishimiz uchun
-                    kerak!.
+                    Malumotlarni toldiring. Bu sizga bog'lanishimiz uchun kerak!
                   </DialogDescription>
                 </DialogHeader>
-                <div className='grid gap-4 py-4'>
-                  <div className='flex'>
-                    <Input
-                      required
-                      id='ism'
-                      placeholder='Ismingizni Kiriting?'
-                      className='col-span-3'
-                    />
-                  </div>
-                  <div className='flex'>
-                    <Input
-                      required
-                      id='familiya'
-                      placeholder='Familiyangizni Kiriting'
-                      className='w-full'
-                    />
-                  </div>
 
-                  <div className='flex'>
-                    <Input
-                      required
-                      id='telefon'
-                      type='tel'
-                      placeholder='Telefon raqamingiz'
-                      className='w-full'
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type='submit' onClick={handleSubmit}>
-                    Jo'natish
-                  </Button>
-                </DialogFooter>
+                <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+                  <Input
+                    id='ism'
+                    name='Ism'
+                    type='text'
+                    required
+                    placeholder='Ismingizni kiriting'
+                  />
+                  <Input
+                    id='familiya'
+                    name='Familiya'
+                    type='text'
+                    required
+                    placeholder='Familiyangizni kiriting'
+                  />
+                  <Input
+                    id='telefon'
+                    name='Telefon'
+                    type='text'
+                    required
+                    placeholder='Telefon raqamingizni kiriting'
+                  />
+                  <DialogFooter>
+                    <Button
+                      className='bg-green-400 hover:bg-green-500'
+                      type='submit'
+                    >
+                      Jo‘natish
+                    </Button>
+                  </DialogFooter>
+                </form>
               </DialogContent>
             </Dialog>
           </ol>

@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 export default function Hero() {
   return (
     <section className='py-14'>
-      <div className='container mx-auto px-10'>
+      <div className='container mx-auto px-8 sm:px-10'>
         <div className='text-center flex justify-center items-center flex-col mt-10'>
-          <h1 className='text-[40px] max-w-[700px] uppercase font-bold'>
+          <h1 className='text-[24px] sm:text-[40px] max-w-[700px] uppercase font-bold'>
             Barabanni aylantiring va qishki chegirmangizni toping!
           </h1>
-          <p className='max-w-[700px] text-xl font-normal'>
+          <p className='max-w-[700px] text-base mt-4 sm:text-xl font-normal'>
             Qadrli mijozlarimiz! Ushbu qish mavsumida siz uchun maxsus aksiyani
             taqdim etamiz.{' '}
             <strong className='font-semibold'>Barabanni aylantiring</strong> va
