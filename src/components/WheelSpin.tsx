@@ -19,25 +19,39 @@ import axios from 'axios';
 const WheelOfFortune = () => {
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [result, setResult] = useState('');
+  const [result, setResult] = useState<{
+    prize: string;
+    old: string;
+    skidka: string;
+  } | null>(null);
   const [spinsLeft, setSpinsLeft] = useState(3);
-  const [prizeHistory, setPrizeHistory] = useState<string[]>([]);
+  const [prizeHistory, setPrizeHistory] = useState<
+    { prize: string; old: string; skidka: string }[]
+  >([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
 
   const prizes = [
-    'ANATOMIK YOSHARISH',
-    'RADIOLIFT',
-    'KEYINGI SAFAR :)',
-    'TERMOLEFT',
-    'CHESKA+PEELING',
-    'KEYINGI SAFAR :)',
-    'SOCH MEZOTERAPIYA',
-    "KO'Z BIOREVITALIZATSIYASI",
-    'KEYINGI SAFAR :)',
-    'Yuz MEZOTERAPIYA',
-    'BOTEX 50% SKIDKA',
-    'KEYINGI SAFAR :)',
+    { prize: 'ANATOMIK YOSHARISH', old: "450 000 so'm", skidka: "0 so'm" },
+    { prize: 'RADIOLIFT', old: "650 000 so'm", skidka: "0 so'm" },
+    { prize: 'KEYINGI SAFAR :)', old: '', skidka: '' },
+    { prize: 'TERMOLEFT', old: "400 000 so'm", skidka: "0 so'm" },
+    { prize: 'CHESTKA+PEELING', old: "490 000 so'm", skidka: "199 000 so'm" },
+    { prize: 'KEYINGI SAFAR :)', old: '', skidka: '' },
+    { prize: 'SOCH MEZOTERAPIYA', old: "550 000 so'm", skidka: "0 so'm" },
+    {
+      prize: "KO'Z BIOREVITALIZATSIYASI",
+      old: "550 000 so'm",
+      skidka: "0 so'm",
+    },
+    { prize: 'KEYINGI SAFAR :)', old: '', skidka: '' },
+    { prize: 'YUZ MEZOTERAPIYA', old: "650 000 so'm", skidka: "199 000 so'm" },
+    {
+      prize: 'BOTEX 50% SKIDKA',
+      old: '',
+      skidka: '',
+    },
+    { prize: 'KEYINGI SAFAR :)', old: '', skidka: '' },
   ];
 
   const TELEGRAM_BOT_TOKEN = '7619434666:AAGfUH57FYz0WXMKMFJii5jUNMH3pRG5ERs'; // Bot tokenini shu yerga kiriting
@@ -45,16 +59,26 @@ const WheelOfFortune = () => {
 
   const sendToTelegram = async (
     name: string,
-    surname: string,
     phone: string,
-    prizeHistory: any[]
+    prizeHistory: { prize: string; old: string; skidka: string }[]
   ) => {
+    // Har bir yutuqni formatlash
+    const formattedPrizes = prizeHistory
+      .map(
+        (prize, index) =>
+          `${index + 1}. ${prize.prize} (Avvalgi narx: ${prize.old}, Skidka: ${
+            prize.skidka
+          })`
+      )
+      .join('\n'); // Har bir yutuqni yangi qatorga joylashtiramiz
+
+    // Telegramga yuboriladigan xabar
     const message = `
       Yutgan foydalanuvchi:
       Ism: ${name}
-      Familiya: ${surname}
       Telefon: ${phone}
-      Yutuqlar: ${prizeHistory.join(', ')}
+      Yutuqlar:
+      ${formattedPrizes}
     `;
 
     try {
@@ -74,29 +98,25 @@ const WheelOfFortune = () => {
     event.preventDefault();
 
     const name = (document.getElementById('ism') as HTMLInputElement)?.value;
-    const surnameElement = document.getElementById(
-      'familiya'
-    ) as HTMLInputElement | null;
     const phoneElement = document.getElementById(
       'telefon'
     ) as HTMLInputElement | null;
 
-    if (!surnameElement || !phoneElement) {
+    if (!name || !phoneElement) {
       alert('Iltimos, barcha maydonlarni to‘ldiring.');
       return;
     }
 
-    const surname = surnameElement.value;
     const phone = phoneElement.value;
 
-    if (!name || !surname || !phone) {
+    if (!name || !phone) {
       alert('Iltimos, barcha maydonlarni to‘ldiring.');
       return;
     }
 
     try {
       // Telegramga ma'lumot yuborish
-      await sendToTelegram(name, surname, phone, prizeHistory);
+      await sendToTelegram(name, phone, prizeHistory);
 
       alert('Ma’lumot yuborildi!');
       setIsModalOpen2(false);
@@ -149,7 +169,7 @@ const WheelOfFortune = () => {
   const spinWheel = () => {
     if (!isSpinning && spinsLeft > 0) {
       setIsSpinning(true);
-      setResult('');
+      setResult(null);
 
       const spins = 5 + Math.random() * 5;
       const newRotation = rotation + spins * 360;
@@ -221,14 +241,14 @@ const WheelOfFortune = () => {
                 200 + textRadius * Math.sin((midAngle * Math.PI) / 180);
 
               const sectorColor =
-                prize === 'KEYINGI SAFAR :)'
+                prize.prize === 'KEYINGI SAFAR :)'
                   ? '#FFFFFF'
                   : index % 2 === 0
                   ? '#FFD700'
                   : '#E31E24';
 
               const textColor =
-                prize === 'KEYINGI SAFAR :)'
+                prize.prize === 'KEYINGI SAFAR :)'
                   ? '#E31E24'
                   : sectorColor === '#FFFFFF'
                   ? '#000000'
@@ -250,7 +270,7 @@ const WheelOfFortune = () => {
                     dominantBaseline='middle'
                     transform={`rotate(${180 + midAngle} ${textX} ${textY})`}
                   >
-                    {prize}
+                    {prize.prize}
                   </text>
                 </g>
               );
@@ -324,11 +344,11 @@ const WheelOfFortune = () => {
           <Dialog open={isModalOpen} onOpenChange={closeModal}>
             <DialogContent>
               <DialogHeader>
-                <div className='flex justify-center items-center py-4'>
+                <span className='flex justify-center items-center py-4'>
                   <img src={gift} alt='gift' />
-                </div>
+                </span>
                 <DialogTitle className='flex flex-col justify-center items-center text-center'>
-                  {result === 'KEYINGI SAFAR :)' ? (
+                  {result?.prize === 'KEYINGI SAFAR :)' ? (
                     <span className='text-3xl'>Omadingiz Kelmadi!</span>
                   ) : (
                     <span className='text-3xl font-bold'>Tabriklaymiz!!!</span>
@@ -336,8 +356,16 @@ const WheelOfFortune = () => {
                 </DialogTitle>
 
                 <DialogDescription className='text-center py-10 text-gray-700 text-2xl'>
-                  Sizga <strong>{result}</strong> chiqdi!
-                  <div className='text-2xl text-center'>
+                  Sizga{' '}
+                  <strong>
+                    {result?.prize}{' '}
+                    <span className='line-through text-gray-500'>
+                      {result?.old}
+                    </span>{' '}
+                    <span>{result?.skidka}</span>
+                  </strong>{' '}
+                  chiqdi!
+                  <span className='text-2xl text-center'>
                     {spinsLeft === 0 ? (
                       <span>Barcha urinishlaringiz tugadi!</span>
                     ) : (
@@ -346,7 +374,7 @@ const WheelOfFortune = () => {
                         qoldi!
                       </span>
                     )}
-                  </div>
+                  </span>
                 </DialogDescription>
               </DialogHeader>
             </DialogContent>
@@ -365,9 +393,14 @@ const WheelOfFortune = () => {
             ) : (
               prizeHistory.map(
                 (prize, index) =>
-                  prize !== 'KEYINGI SAFAR :)' && (
-                    <li className='font-semibold uppercase' key={index}>
-                      {prize}
+                  prize.prize !== 'KEYINGI SAFAR :)' && (
+                    <li
+                      className='font-semibold text-gray-700 uppercase'
+                      key={index}
+                    >
+                      {prize.prize}{' '}
+                      <span className='line-through'>{prize.old}</span>{' '}
+                      {prize.skidka}
                     </li>
                   )
               )
@@ -405,13 +438,7 @@ const WheelOfFortune = () => {
                     required
                     placeholder='Ismingizni kiriting'
                   />
-                  <Input
-                    id='familiya'
-                    name='Familiya'
-                    type='text'
-                    required
-                    placeholder='Familiyangizni kiriting'
-                  />
+
                   <Input
                     id='telefon'
                     name='Telefon'
