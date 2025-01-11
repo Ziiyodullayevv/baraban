@@ -38,14 +38,18 @@ const WheelOfFortune = () => {
     { prize: 'TERMOLEFT', old: "400 000 so'm", skidka: "0 so'm" },
     { prize: 'CHESTKA+PEELING', old: "490 000 so'm", skidka: "199 000 so'm" },
     { prize: 'KEYINGI SAFAR :)', old: '', skidka: '' },
-    { prize: 'SOCH MEZOTERAPIYA', old: "550 000 so'm", skidka: "0 so'm" },
+    { prize: 'SOCH MEZOTERAPIYASI', old: "550 000 so'm", skidka: "0 so'm" },
     {
       prize: "KO'Z BIOREVITALIZATSIYASI",
       old: "550 000 so'm",
       skidka: "0 so'm",
     },
     { prize: 'KEYINGI SAFAR :)', old: '', skidka: '' },
-    { prize: 'YUZ MEZOTERAPIYA', old: "650 000 so'm", skidka: "199 000 so'm" },
+    {
+      prize: 'YUZ MEZOTERAPIYASI',
+      old: "650 000 so'm",
+      skidka: "199 000 so'm",
+    },
     {
       prize: 'BOTEX 50% SKIDKA',
       old: '',
@@ -54,8 +58,8 @@ const WheelOfFortune = () => {
     { prize: 'KEYINGI SAFAR :)', old: '', skidka: '' },
   ];
 
-  const TELEGRAM_BOT_TOKEN = '7619434666:AAGfUH57FYz0WXMKMFJii5jUNMH3pRG5ERs'; // Bot tokenini shu yerga kiriting
-  const TELEGRAM_CHAT_ID = '961047307'; // Chat ID ni shu yerga kiriting
+  const TELEGRAM_BOT_TOKEN = '7942001008:AAGfDHp8RYROV-nEHtimgZhKiQrOwH5f6zs'; // Bot tokenini shu yerga kiriting
+  const TELEGRAM_CHAT_ID = '2045626709'; // Chat ID ni shu yerga kiriting
 
   const sendToTelegram = async (
     name: string,
